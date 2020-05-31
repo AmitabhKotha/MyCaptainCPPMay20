@@ -2,6 +2,7 @@
 #include<conio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<iomanip>
 #include<stdio.h>
 
 #define max_seats 32
@@ -9,49 +10,53 @@
 
 using namespace std;
 
-char destinations[4][10]={"Delhi","Mumbai","Kolkata","Hyderabad"};//Only For these destinations 
-const char password[]="BUS_SYSTEM"; //For Admin
-
-//Class that manages the passengers of one bus
+string destinations[4]={"Delhi","Mumbai","Kolkata","Hyderabad"};//Only For these destinations 
+string password = "HELLO";
 class Bus{
 	private:
 		int seats[max_seats];
-		char passengers[max_seats][20];
+		string passengers[max_seats];
 	public:
-		char bno[5];
-		char destination[10];
-		void setBusDetails(char no[5],int opt);
+		int count;	
+		string bno;
+		string destination;
+		void setBusDetails(string no,int opt);
 		void showAvailable();
 		void reserveSeat();
 		void cancelSeat();
 };
 
 //To Set the details of the bus
-void Bus::setBusDetails(char no[5], int opt){
-	strcpy(bno,no);
-	strcpy(destinations[opt],destination);
+void Bus::setBusDetails(string no, int opt){
+	bno=no;
+	destination=destinations[opt];
 	for(int i=0;i<max_seats;i++){
 		seats[i]=-1;
 	}
+	count=0;
 }
 //Display the available bus seats
 void Bus::showAvailable(){
-	cout<<"\nReserved seats are marked with 'X'\nUnreserved seats are marked with O."<<endl;
-	cout<<"Seats in the Bus number "<<bno<<" are :\n" ;
+	cout<<"\nReserved seats are marked with 'X'\nUnreserved seats are marked with 'O'."<<endl;
+	cout<<"Seats in the Bus number "<<bno<<"(Des:"<<destination<<") are :\n" ;
 	for(int i=0;i<max_seats/4;i++){
 		if(seats[i]!=-1){
-			cout<<"0"<<(i+1)<<"[X] "; 
+			if(i<10) cout<<"0";
+			cout<<(i)<<"[X] "; 
 		}
 		else{
-			cout<<"0"<<(i+1)<<"[O] ";
+			if(i<10) cout<<"0";
+			cout<<(i)<<"[O] ";
 		}
 	}
 	cout<<endl;
 	for(int i=max_seats/4;i<max_seats/2;i++){
 		if(seats[i]!=-1){
+			if(i<10) cout<<"0";
 			cout<<(i)<<"[X] "; 
 		}
 		else{
+			if(i<10) cout<<"0";
 			cout<<(i)<<"[O] ";
 		}
 	}
@@ -75,38 +80,44 @@ void Bus::showAvailable(){
 		}
 	}
 	cout<<endl;
+	
 }
 
 //Reserve a particular seat
 void Bus::reserveSeat(){
-	int seat;
-	char name[20];
-	showAvailable();
-	cout<<"\nEnter the seat to reserve: \t";
-	cin>>seat;
-	if(seat>32 && seat<0){
-		cout<<"Please enter a valid seat number.\nSeats are indexed from [0-31].\n";
-		reserveSeat();
-	} 
-	else if(seats[seat]!=-1){
-		cout<<"Seat is already reserved.\nPlease select other seat number\n";
-		reserveSeat();
+	if(count<max_seats){
+		int seat;
+		string name;
+		showAvailable();
+		cout<<"\nEnter the seat to reserve: \t";
+		cin>>seat;
+		if(seat>max_seats && seat<0){
+			cout<<"Please enter a valid seat number.\nSeats are indexed from [0-31].\n";
+			reserveSeat();
+		} 
+		else if(seats[seat]!=-1){
+			cout<<"Seat is already reserved.\nPlease select other seat number\n";
+			reserveSeat();
+		}
+		else{
+			cout<<"\nEnter the passenger name:\t";
+			cin>>name;
+			seats[seat]=0;
+			passengers[seat]=name;
+			cout<<"Successfully reserved the seat to "<<passengers[seat]<<".\n";
+			count++;
+		}
 	}
-	else{
-		cout<<"\nEnter the passenger name:\t";
-		gets(name);
-		seats[seat]=0;
-		strcpy(passengers[seat],name);
-		cout<<"Successfully reserved the seat to "<<name<<".\n";
-	}
+	else cout<<"\nBus is Full.\n";
+	system("pause");
 }
 
 //Cancel a ANY SEAT
 void Bus::cancelSeat(){
 	int seat;
-	cout<<"\nEnter the seat to reserve: \t";
+	cout<<"\nEnter the seat to cancel: \t";
 	cin>>seat;
-	if(seat>32 && seat<0){
+	if(seat>max_seats && seat<0){
 		cout<<"Please enter a valid seat number.\nSeats are indexed from [0-31].\n";
 		cancelSeat();
 	} 
@@ -116,7 +127,9 @@ void Bus::cancelSeat(){
 	else{
 		seats[seat]=-1;
 		cout<<"Successfully cancelled the seat.\n";
+		count--;
 	}
+	system("pause");
 }
 
 //Class that manages all the buses
@@ -139,33 +152,34 @@ void BusCompany::busList(){
 		cout<<"\nNo Buses.\n";
 	}
 	else{
-		cout<<"\nBus Number\t\tDestination\n";
+		cout<<"\nBus Number "<<setw(12)<<" Destination\n";
 		for(int i=0;i<n;i++){
-			cout<<(i+1)<<"."<<buses[i].bno<<"\t\t"<<buses[i].destination<<endl;
+			cout<<(i+1)<<"."<<buses[i].bno<<setw(12)<<buses[i].destination<<endl;
 		}
 	}
+	system("pause");
 }
 
 //Add a particular bus
 void BusCompany::addBus(){
 	if(n<=20){
-		n++;
-		int opt;
-		char number[5];
+		int opts;
+		string number;
 		cout<<"\nEnter the bus number : ";
 		cin>>number;
 		cout<<"\nSelect the bus destination : \n";
 		for(int i=0;i<4;i++){
 			cout<<(i+1)<<"."<<destinations[i]<<endl;
 		}
-		cin>>opt;
-		if(opt>4 && opt<1){
+		cin>>opts;
+		if(opts>4 && opts<1){
 			cout<<"Select valid option.\n";
-			addBus();
 		}
-		buses[n].setBusDetails(number,opt-1);
+		buses[n].setBusDetails(number,opts-1);
+		n++;
 	}
 	else cout<<"\nCannot add more buses.\n";
+	system("pause");
 }
 
 //Function for Passenger to reserve in a bus 
@@ -181,6 +195,7 @@ void BusCompany::passengerReserve(){
 	else{
 		buses[opt-1].reserveSeat();
 	}
+	system("pause");
 }
 //Function for passneger to cancel ticket for a bus
 void BusCompany::passengerCancel(){
@@ -195,19 +210,19 @@ void BusCompany::passengerCancel(){
 	else{
 		buses[opt-1].cancelSeat();
 	}
+	system("pause");
 }
 
 BusCompany b;//BusCompany global object
 
 //Admin function that only the admin can access
 void Admin(){
-	char pwd[10];
+	string pwd;
 	int subopt;
-	cout<<"Enter the password:";
+	cout<<"Enter the password: ";
 	cin>>pwd;
-	if(strcmp(pwd,password)==0){
+	if(pwd==password){
 		cout<<"Verified Successfully.\n";
-		
 		cout<<"1.Add Bus\n"<<"2.Buses List\n";
 		cout<<"Enter any option:\t";
 		cin>>subopt;
@@ -225,7 +240,7 @@ void Admin(){
 	}
 }
 
-//Passenfer function to give travellers an option to reserve ticket
+//Passenger function to give travellers an option to reserve ticket
 void Passenger(){
 	int subopt;
 	cout<<"\n1.Check Buses\n2.Reserve ticket\n3.Cancel Reservation\n";
@@ -245,7 +260,9 @@ void Passenger(){
 int main(){
 	int opt;	//Option  for switch
 	while(1){
-		cout<<"1.Admin\n2.Traveller\n3.Exit\n";
+		system("cls");
+		cout<<"+++++++++++++MENU+++++++++++++";
+		cout<<"\n1.Admin\n2.Traveller\n3.Exit\n";
 		cout<<"Enter any option:\t";
 		cin>>opt;
 		int subopt;
